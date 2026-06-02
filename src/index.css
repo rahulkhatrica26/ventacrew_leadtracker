@@ -1,0 +1,654 @@
+/* ═══════════════════════════════════════════════════════════════
+   VantaCrew · LeadTracker · index.css
+   Tailwind base + global resets, typography, animations,
+   custom component overrides, and utility classes that Tailwind's
+   JIT either can't express inline or that need cascade-level control.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1 · Google Fonts — must precede all other statements ── */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap');
+
+/* ── 2 · Tailwind directives ── */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ══════════════════════════════════════════════════════
+   3 · CSS custom properties (design tokens)
+   These mirror tailwind.config.js so plain CSS rules
+   can reference the same palette without duplication.
+   ══════════════════════════════════════════════════════ */
+:root {
+  /* Brand */
+  --gold:          #F5C842;
+  --gold-dark:     #C9A020;
+  --gold-subtle:   rgba(245, 200, 66, 0.08);
+
+  /* Ink scale */
+  --ink-900: #0D0D0D;
+  --ink-800: #111111;
+  --ink-700: #161616;
+  --ink-600: #1E1E1E;
+  --ink-500: #272727;
+  --ink-400: #333333;
+
+  /* Stage colours */
+  --stage-new:         #3B82F6;
+  --stage-contacted:   #8B5CF6;
+  --stage-qualified:   #F5C842;
+  --stage-proposal:    #F97316;
+  --stage-closed-won:  #22C55E;
+  --stage-closed-lost: #EF4444;
+
+  /* Spacing / sizing */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   18px;
+  --radius-2xl:  24px;
+
+  /* Motion */
+  --duration-fast:   120ms;
+  --duration-normal: 200ms;
+  --duration-slow:   320ms;
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ══════════════════════════════════════════════════════
+   4 · Base / reset layer
+   ══════════════════════════════════════════════════════ */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    /* Smooth scrolling site-wide; respect reduced-motion below */
+    scroll-behavior: smooth;
+    /* Prevent font-size inflation on iOS */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--ink-900);
+    color: #ffffff;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevent layout shift when a modal locks scroll */
+    overflow-x: hidden;
+  }
+
+  /* Headings use Syne bold */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  /* Monospaced elements use DM Mono */
+  code, kbd, samp, pre,
+  .font-mono {
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Remove default button styles so Tailwind classes apply cleanly */
+  button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Remove default input / select / textarea styles */
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Remove default list styles */
+  ul, ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Consistent anchor resets */
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Images block-level by default to avoid phantom whitespace */
+  img, svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* Respect user preference for reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   5 · Scrollbar styling (webkit + Firefox)
+   ══════════════════════════════════════════════════════ */
+/* Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-400);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-400) transparent;
+}
+
+/* ══════════════════════════════════════════════════════
+   6 · Keyframe animations
+   Defined here so they're available globally; Tailwind's
+   config re-exposes them as utility classes (animate-fadeIn
+   etc.) but the @keyframes must live in CSS.
+   ══════════════════════════════════════════════════════ */
+
+/* Overlay backdrop fade */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Modal / card entrance */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subtle scale-in for counter cards on first render */
+@keyframes scalePop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Skeleton shimmer for future loading states */
+@keyframes shimmer {
+  from { background-position: -600px 0; }
+  to   { background-position:  600px 0; }
+}
+
+/* Pulse for "active" indicator dots */
+@keyframes pulseDot {
+  0%, 100% { opacity: 1;   transform: scale(1);    }
+  50%       { opacity: 0.4; transform: scale(0.75); }
+}
+
+/* ══════════════════════════════════════════════════════
+   7 · Component-level utility classes  (@layer components)
+   These extend Tailwind without leaking into the utilities
+   layer. They can be composed with arbitrary Tailwind classes.
+   ══════════════════════════════════════════════════════ */
+@layer components {
+
+  /* ── 7a · Focus ring ──
+     Applied via JS className or extended in Tailwind.
+     Use `class="focus-ring"` anywhere a visible ring is needed. */
+  .focus-ring {
+    outline: none;
+  }
+  .focus-ring:focus-visible {
+    outline: 2px solid rgba(245, 200, 66, 0.6);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ── 7b · Form field base ──
+     Matches the inline `inputCls` string in ProspectModal.jsx
+     so it can also be used as a class when convenient. */
+  .field {
+    width: 100%;
+    background-color: var(--ink-900);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: var(--radius-md);
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    color: #ffffff;
+    outline: none;
+    transition: border-color var(--duration-fast) ease;
+  }
+  .field::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+  }
+  .field:focus {
+    border-color: rgba(245, 200, 66, 0.60);
+  }
+  .field:hover:not(:focus) {
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+  .field.error {
+    border-color: #EF4444;
+  }
+
+  /* ── 7c · Select appearance reset ──
+     Browsers apply inconsistent arrow/background to <select>;
+     this makes it match the dark theme. */
+  select.field,
+  select[class*="bg-ink"] {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.35)' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.25rem;
+    cursor: pointer;
+  }
+  select.field option,
+  select[class*="bg-ink"] option {
+    background-color: var(--ink-600);
+    color: #ffffff;
+  }
+
+  /* ── 7d · Number input — hide browser spin buttons ── */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  /* ── 7e · Textarea resize constraint ── */
+  textarea.field,
+  textarea[class*="bg-ink"] {
+    resize: vertical;
+    min-height: 72px;
+  }
+
+  /* ── 7f · Modal backdrop ──
+     .modal-backdrop wraps the fixed overlay so blurring and
+     animation are handled in one place. */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    animation: fadeIn var(--duration-fast) ease;
+  }
+
+  /* ── 7g · Modal panel ── */
+  .modal-panel {
+    width: 100%;
+    animation: slideUp var(--duration-normal) var(--ease-out);
+    will-change: transform, opacity;
+  }
+
+  /* ── 7h · Card / panel surface ── */
+  .surface {
+    background-color: var(--ink-700);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-xl);
+  }
+  .surface-raised {
+    background-color: var(--ink-600);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.40);
+  }
+
+  /* ── 7i · Counter card active underline ── */
+  .counter-card-active-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    border-radius: 0 0 2px 2px;
+  }
+
+  /* ── 7j · Stage badge (generic wrapper, colours via JS) ── */
+  .stage-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .stage-badge__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── 7k · Primary action button ── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--gold);
+    color: var(--ink-900);
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    transition:
+      background-color var(--duration-fast) ease,
+      transform var(--duration-fast) var(--ease-spring);
+    outline: none;
+  }
+  .btn-primary:hover {
+    background-color: var(--gold-dark);
+  }
+  .btn-primary:active {
+    transform: scale(0.96);
+  }
+  .btn-primary:focus-visible {
+    outline: 2px solid rgba(245, 200, 66, 0.7);
+    outline-offset: 2px;
+  }
+
+  /* ── 7l · Ghost / secondary button ── */
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: var(--radius-md);
+    transition:
+      background-color var(--duration-fast) ease,
+      color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease;
+  }
+  .btn-ghost:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+  .btn-ghost:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.3);
+    outline-offset: 2px;
+  }
+
+  /* ── 7m · Danger button (Delete modal) ── */
+  .btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #F87171;
+    border: 1px solid rgba(239, 68, 68, 0.40);
+    border-radius: var(--radius-md);
+    transition:
+      background-color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease;
+  }
+  .btn-danger:hover {
+    background-color: rgba(239, 68, 68, 0.10);
+    border-color: rgba(239, 68, 68, 0.60);
+  }
+  .btn-danger:focus-visible {
+    outline: 2px solid rgba(239, 68, 68, 0.5);
+    outline-offset: 2px;
+  }
+
+  /* ── 7n · Icon action button (edit / delete in table row) ── */
+  .btn-icon {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: var(--radius-sm);
+    color: rgba(255, 255, 255, 0.30);
+    transition:
+      color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease,
+      background-color var(--duration-fast) ease;
+  }
+  .btn-icon--edit:hover {
+    color: var(--gold);
+    border-color: rgba(245, 200, 66, 0.30);
+    background-color: rgba(245, 200, 66, 0.05);
+  }
+  .btn-icon--delete:hover {
+    color: #F87171;
+    border-color: rgba(239, 68, 68, 0.30);
+    background-color: rgba(239, 68, 68, 0.05);
+  }
+
+  /* ── 7o · Table ── */
+  .prospect-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 2px;
+    font-size: 0.875rem;
+  }
+  .prospect-table th {
+    text-align: left;
+    padding: 0.5rem 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.25);
+  }
+  .prospect-table td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+  }
+  .prospect-table tbody tr {
+    transition: background-color var(--duration-fast) ease;
+    border-radius: var(--radius-lg);
+  }
+  .prospect-table tbody tr:hover {
+    background-color: var(--ink-700);
+  }
+  /* Round first/last cells to simulate row border-radius */
+  .prospect-table tbody td:first-child { border-radius: var(--radius-lg) 0 0 var(--radius-lg); }
+  .prospect-table tbody td:last-child  { border-radius: 0 var(--radius-lg) var(--radius-lg) 0; }
+
+  /* ── 7p · Skeleton / loading shimmer ── */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--ink-600) 0%,
+      var(--ink-500) 40%,
+      var(--ink-600) 100%
+    );
+    background-size: 600px 100%;
+    animation: shimmer 1.4s ease infinite;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ── 7q · Empty-state wrapper ── */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6rem 1.5rem;
+    gap: 0.75rem;
+    color: rgba(255, 255, 255, 0.20);
+    text-align: center;
+  }
+  .empty-state p {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.875rem;
+  }
+
+  /* ── 7r · Header brand mark ── */
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+    background-color: var(--gold);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-900);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: -0.02em;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  /* ── 7s · Search input wrapper ── */
+  .search-wrapper {
+    position: relative;
+    flex: 1;
+    max-width: 20rem;
+  }
+  .search-wrapper svg {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.25);
+    pointer-events: none;
+  }
+  .search-wrapper input {
+    padding-left: 2.25rem;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   8 · Utility extensions  (@layer utilities)
+   Small one-off helpers that Tailwind doesn't include
+   out of the box or that require CSS-only selectors.
+   ══════════════════════════════════════════════════════ */
+@layer utilities {
+
+  /* Text truncation with ellipsis */
+  .truncate-2 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  /* Gold text accent */
+  .text-gold {
+    color: var(--gold);
+  }
+
+  /* Subtle gold background tint */
+  .bg-gold-subtle {
+    background-color: var(--gold-subtle);
+  }
+
+  /* Glassmorphism backdrop blur for sticky header */
+  .backdrop-blur-header {
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    background-color: rgba(13, 13, 13, 0.85);
+  }
+
+  /* Prevent body scroll when modal is open.
+     Apply to <body> via JS: document.body.classList.add('scroll-locked') */
+  .scroll-locked {
+    overflow: hidden;
+    /* On iOS, also need position:fixed to truly prevent scroll */
+    position: fixed;
+    width: 100%;
+  }
+
+  /* Full-bleed dividers */
+  .divider {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin: 0;
+  }
+
+  /* Animate-in helpers (used by modals in Tailwind class strings) */
+  .animate-fade-in  { animation: fadeIn  var(--duration-fast)   ease both; }
+  .animate-slide-up { animation: slideUp var(--duration-normal) var(--ease-out) both; }
+  .animate-scale-pop{ animation: scalePop var(--duration-normal) var(--ease-spring) both; }
+
+  /* Monochrome icon muted state */
+  .icon-muted { color: rgba(255, 255, 255, 0.25); }
+  .icon-muted:hover { color: rgba(255, 255, 255, 0.70); }
+
+  /* Highlight ring for active filter tab */
+  .ring-gold {
+    box-shadow: 0 0 0 2px var(--gold);
+  }
+
+  /* Print: hide decorative chrome when printing */
+  @media print {
+    header,
+    .modal-backdrop,
+    .btn-primary,
+    .btn-ghost,
+    .btn-icon {
+      display: none !important;
+    }
+    body {
+      background: #ffffff;
+      color: #000000;
+    }
+  }
+}
