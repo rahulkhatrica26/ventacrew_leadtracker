@@ -1,4 +1,4 @@
-# LeadTracker · VantaCrew Builder Test 2
+# LeadTracker · VantaCrew Builder 
 
 A single-page sales prospect tracker built with **React 18 + Vite + Tailwind CSS v3**.
 
