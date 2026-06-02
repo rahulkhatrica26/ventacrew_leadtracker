@@ -78,7 +78,7 @@ export default function App() {
           <div>
             <div className="text-sm font-bold leading-tight">LeadTracker</div>
             <div className="text-[10px] font-mono tracking-widest text-yellow-400/70 uppercase">
-              VantaCrew · Test 2
+              VantaCrew
             </div>
           </div>
         </div>
